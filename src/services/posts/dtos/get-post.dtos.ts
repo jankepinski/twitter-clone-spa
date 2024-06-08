@@ -1,19 +1,17 @@
 export type GetPostResponse = {
-  id: string;
+  id: number;
   createdAt: string;
   updatedAt: string;
   content: string;
-  parentId: string | null;
-  authorId: string;
+  parentId: number | null;
+  authorId: number;
   children?: GetPostResponse[];
-  author: {
-    name: string;
-  };
+  author: string;
   parent: {
     content: string;
     author: {
       name: string;
     };
-    authorId: string;
+    authorId: number;
   };
 };

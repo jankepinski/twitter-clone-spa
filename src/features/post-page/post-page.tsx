@@ -1,92 +1,77 @@
 import { Post } from "@/components/molecules/post/post";
 import { PostsApi } from "@/services/posts/posts-api";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { PostInput } from "../home/components/post-input";
-import { Card } from "@/components/ui/card";
-import { Undo2 } from "lucide-react";
+import { PostWithResponse } from "./components/post-with-response";
+import { PostInput } from "@/components/molecules/post-input/post-input";
+import { queryClient } from "@/+shared/setup/react-query/setup";
+import { ArrowLeftFromLine } from "lucide-react";
 
 export const PostPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { data: post } = useQuery({
     queryKey: ["posts", id],
     queryFn: () => PostsApi.getPost(id!),
   });
-  const navigate = useNavigate();
+  const createPostMutation = useMutation({
+    mutationFn: PostsApi.createPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
+    },
+  });
   return (
-    <div className="p-4">
-      {post?.parent ? (
-        <Card
-          className="p-2 mb-2 cursor-pointer"
-          onClick={() => {
-            navigate("/posts/" + post.parentId);
-          }}
-        >
-          <p>
-            Reply to:{" "}
-            <a
-              className="font-semibold hover:underline underline-offset-2 cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate("/profile/" + post.parent.authorId);
-              }}
-            >
-              {post.parent.author.name}
-            </a>
-            : {post.parent.content}
-          </p>
-        </Card>
-      ) : (
-        <Card
-          className="p-2 mb-2 cursor-pointer flex items-center"
+    <div className="min-h-screen border-x">
+      <div className="p-2 border-b">
+        <button
           onClick={() => {
             navigate("/");
           }}
         >
-          <Undo2 />
-          <p className="ml-4">Go back to all posts</p>
-        </Card>
-      )}
-      {post && (
-        <Post
-          author={post.author.name}
-          authorId={post.authorId}
-          content={post.content}
-          createdAt={new Date(post.createdAt)}
-          id={post.id}
-          isClickable={false}
-        />
-      )}
-      <div className="mt-2 mb-12">
-        <PostInput parentId={post?.id} />
+          <ArrowLeftFromLine strokeWidth={1.25} />
+        </button>
       </div>
-
+      {post && (
+        <div className="border-b">
+          <Post
+            author={post.author}
+            authorId={post.authorId}
+            content={post.content}
+            postId={post.id}
+            createdAt={post.createdAt}
+          />
+        </div>
+      )}
+      <PostInput
+        placeholder="Reply to this post..."
+        onSend={(content) => {
+          createPostMutation.mutate({ content, parentId: post?.id.toString() });
+        }}
+      />
       {post?.children &&
-        post?.children?.map((child) => (
-          <div className="mt-6">
-            <Post
-              key={child.id}
-              author={child.author.name}
+        post?.children?.map((child) =>
+          child.children?.length && child.children.length > 0 ? (
+            <PostWithResponse
+              author={child.author}
               authorId={child.authorId}
               content={child.content}
               id={child.id}
-              createdAt={new Date(child.createdAt)}
+              createdAt={child.createdAt}
+              children={child.children}
             />
-            <div className="pl-8 mt-1">
-              {child.children &&
-                child.children.map((child) => (
-                  <Post
-                    key={child.id}
-                    author={child.author.name}
-                    authorId={child.authorId}
-                    content={child.content}
-                    id={child.id}
-                    createdAt={new Date(child.createdAt)}
-                  />
-                ))}
+          ) : (
+            <div className="border-b">
+              <Post
+                author={child.author}
+                authorId={child.authorId}
+                content={child.content}
+                postId={child.id}
+                createdAt={child.createdAt}
+              />
             </div>
-          </div>
-        ))}
+          )
+        )}
     </div>
   );
 };

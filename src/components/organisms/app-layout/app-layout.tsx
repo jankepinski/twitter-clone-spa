@@ -5,7 +5,7 @@ export const AppLayout = () => {
   return (
     <div className="md:container md:mx-auto flex">
       <div className="hidden md:block basis-1/4 h-screen">
-        <div className="top-4 sticky">
+        <div className="top-4 sticky pr-2">
           <ProfileCard />
         </div>
       </div>

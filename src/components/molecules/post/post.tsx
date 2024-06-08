@@ -1,69 +1,64 @@
+import { ProfilePicture } from "@/+shared/assets/image";
+import { Heart, MessageCircle, Reply } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
 
-export type PostProps = {
+type PostProps = {
   author: string;
   content: string;
-  createdAt: Date;
-  id: string;
-  authorId: string;
-  isClickable?: boolean;
+  createdAt: string;
+  authorId: number;
+  postId: number;
 };
 
 export const Post = ({
   author,
   content,
   createdAt,
-  id,
   authorId,
-  isClickable = true,
+  postId,
 }: PostProps) => {
   const navigate = useNavigate();
-
   const navigateToProfile = () => {
     navigate(`/profile/${authorId}`);
   };
   const navigateToPost = () => {
-    if (isClickable) navigate(`/posts/${id}`);
+    navigate(`/post/${postId}`);
   };
-
   return (
-    <Card
-      onClick={navigateToPost}
-      style={{ cursor: isClickable ? "pointer" : "default" }}
-    >
-      <CardContent className="flex p-4">
-        <div
-          className="min-w-10 max-w-10 min-h-10 max-h-10 bg-neutral-500 rounded-full cursor-pointer"
+    <div className="py-3 flex cursor-pointer" onClick={navigateToPost}>
+      <div className="ml-4">
+        <img
+          src={ProfilePicture}
+          className="min-w-12 max-w-12 min-h-12 max-h-12 object-cover rounded-full"
           onClick={(e) => {
             e.stopPropagation();
             navigateToProfile();
           }}
-        ></div>
-        <div className="ml-4 grow">
-          <div className="flex justify-between">
-            <h1
-              className="text-md font-semibold hover:underline underline-offset-2 cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigateToProfile();
-              }}
-            >
-              {author}
-            </h1>
-            <p className="text-sm font-semibold text-neutral-400 select-none">
-              {createdAt.toISOString().split("T")[0]}
-            </p>
-          </div>
-
-          <p
-            className="text-sm"
-            style={{ cursor: isClickable ? "pointer" : "text" }}
+        />
+      </div>
+      <div className="grow ml-3 pr-2">
+        <div className="flex justify-between items-center">
+          <h2
+            className="font-medium tracking-tight hover:underline underline-offset-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateToProfile();
+            }}
           >
-            {content}
+            {author}
+          </h2>
+          <p className="text-xs">
+            {new Date(createdAt).toISOString().split("T")[0]}
           </p>
         </div>
-      </CardContent>
-    </Card>
+
+        <p className="text-sm mt-1">{content}</p>
+        <div className="mt-4 flex gap-4">
+          <Heart height={18} />
+          <Reply height={18} />
+          <MessageCircle height={18} />
+        </div>
+      </div>
+    </div>
   );
 };
