@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { data, isError } = useQuery({
     queryKey: ["auth"],
     queryFn: AuthApi.me,
+    retry: false,
   });
   console.log(isError, data);
 

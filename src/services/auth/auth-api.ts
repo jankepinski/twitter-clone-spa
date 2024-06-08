@@ -27,6 +27,12 @@ export const AuthApi = {
       if (!res.ok) throw new Error(await res.json().then((err) => err.error));
       return res.json();
     }),
+  logout: () => {
+    return fetch("http://localhost:3000/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+  },
   me: (): Promise<MeResponse> => {
     return fetch("http://localhost:3000/auth/me", {
       credentials: "include",

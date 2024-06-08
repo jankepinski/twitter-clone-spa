@@ -8,7 +8,11 @@ import { PostsApi } from "@/services/posts/posts-api";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
-export const PostInput = () => {
+type PostInputProps = {
+  parentId?: string;
+};
+
+export const PostInput = ({ parentId }: PostInputProps) => {
   const auth = useAuth();
   const { openModal } = useModal();
   const [content, setContent] = useState("");
@@ -17,6 +21,7 @@ export const PostInput = () => {
     mutationFn: PostsApi.createPost,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
       setContent("");
     },
   });
@@ -42,7 +47,7 @@ export const PostInput = () => {
               return openModal(<LoginModal />);
             }
             if (content) {
-              createPostMutation.mutate({ content });
+              createPostMutation.mutate({ content, parentId });
             }
           }}
           size="sm"
