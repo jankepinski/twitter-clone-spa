@@ -1,4 +1,5 @@
 import { CreatePostRequest } from "./dtos/create-post.dtos";
+import { GetPostResponse } from "./dtos/get-post.dtos";
 import { GetPostsResponse } from "./dtos/get-posts.dtos";
 
 export const PostsApi = {
@@ -13,6 +14,14 @@ export const PostsApi = {
     }),
   getPosts: (): Promise<GetPostsResponse> => {
     return fetch("http://localhost:3000/posts", {
+      credentials: "include",
+    }).then(async (res) => {
+      if (!res.ok) throw new Error(await res.json().then((err) => err.message));
+      return res.json();
+    });
+  },
+  getPost: (id: string): Promise<GetPostResponse> => {
+    return fetch(`http://localhost:3000/posts/${id}`, {
       credentials: "include",
     }).then(async (res) => {
       if (!res.ok) throw new Error(await res.json().then((err) => err.message));

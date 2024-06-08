@@ -4,8 +4,5 @@ export type GetPostsResponse = {
   updatedAt: string;
   content: string;
   authorId: number;
-  parentId: number | null;
-  author: {
-    name: string;
-  };
+  author: string;
 }[];
